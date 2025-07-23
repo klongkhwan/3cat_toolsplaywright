@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Test Report</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <h2>Test Summary</h2>
+  <canvas id="chart" width="400" height="200"></canvas>
+  <script>
+    const data = {
+      labels: ['Passed', 'Failed', 'Skipped'],
+      datasets: [{
+        label: 'Test Results',
+        data: [12, 2, 1], // <- mock data
+        backgroundColor: ['green', 'red', 'gray']
+      }]
+    };
+    new Chart(document.getElementById('chart'), {
+      type: 'bar',
+      data: data
+    });
+  </script>
+</body>
+</html>

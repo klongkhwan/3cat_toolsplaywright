@@ -1,0 +1,75 @@
+{
+  "name": "playwright-helper",
+  "displayName": "3CAT Helper",
+  "description": "VS Code Extension to run Playwright tests and snippets",
+  "version": "1.0.0",
+  "engines": {
+    "vscode": "^1.88.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "main": "./out/extension.js",
+  "activationEvents": [
+    "*"
+  ],
+  "scripts": {
+    "compile": "tsc -p ./"
+  },
+  "devDependencies": {
+    "@types/node": "^20.4.2",
+    "@types/vscode": "^1.88.0",
+    "typescript": "^5.1.6"
+  },
+  "contributes": {
+    "commands": [
+      {
+        "command": "playwright-helper.runCurrentFile",
+        "title": "Run Playwright Test"
+      },
+      {
+        "command": "playwright-helper.runCurrentFileWithOptions",
+        "title": "Run Playwright Test (with options)"
+      },
+      {
+        "command": "playwright-helper.showReport",
+        "title": "Show Playwright Test Report"
+      }
+    ],
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "playwright-helper.runCurrentFile",
+          "when": "resourceFilename =~ /\\.(test|spec)\\.(ts|js)$/",
+          "group": "navigation"
+        },
+        {
+          "command": "playwright-helper.runCurrentFileWithOptions",
+          "when": "resourceFilename =~ /\\.(test|spec)\\.(ts|js)$/",
+          "group": "navigation"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "playwright-helper.runCurrentFile",
+          "when": "resourceLangId == typescript",
+          "group": "navigation"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "playwright-helper.runCurrentFile"
+        },
+        {
+          "command": "playwright-helper.showReport"
+        }
+      ]
+    },
+    "snippets": [
+      {
+        "language": "typescript",
+        "path": "./snippets/playwright.code-snippets"
+      }
+    ]
+  }
+}

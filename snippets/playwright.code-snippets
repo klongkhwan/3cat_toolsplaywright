@@ -1,0 +1,95 @@
+{
+  "Playwright Test": {
+    "prefix": "3ctest",
+    "body": [
+      "test('${1:test description}', async ({ page }) => {",
+      "  const loginPage = new LoginPage(page, 'dev');",
+      "  await loginPage.fulllogin();",
+      "  $0",
+      "});"
+    ],
+    "description": "Create a basic Playwright test"
+  },
+  "Playwright Teststep": {
+    "prefix": "3csteptest",
+    "body": [
+      "await test.step('test description', async () => {",
+      "  $0",
+      "});"
+    ],
+    "description": "Create a test.step"
+  },
+  // "Playwright Test with beforeEach": {
+  //   "prefix": "pwtestbefore",
+  //   "body": [
+  //     "import { test, expect } from '@playwright/test';",
+  //     "",
+  //     "test.beforeEach(async ({ page }) => {",
+  //     "  await page.goto('${1:https://example.com}');",
+  //     "});",
+  //     "",
+  //     "test('${2:test description}', async ({ page }) => {",
+  //     "  $0",
+  //     "});"
+  //   ],
+  //   "description": "Create a Playwright test with beforeEach hook"
+  // },
+  "Playwright Full scribe Test": {
+    "prefix": "3cfulltest",
+    "body": [
+      "import { test, expect } from '@playwright/test';",
+      "",
+      "test.describe('${1:SuiteName}', () => {",
+      "  test.beforeEach(async ({ page }) => {",
+      "    await page.goto('${2:https://example.com}');",
+      "  });",
+      "",
+      "  test.afterEach(async ({ page }) => {",
+      "    await page.evaluate(() => localStorage.clear());",
+      "  });",
+      "",
+      "  test('${3:should do something}', async ({ page }) => {",
+      "    await test.step('${4:step description}', async () => {",
+      "      $0",
+      "    });",
+      "  });",
+      "});"
+    ],
+    "description": "Create a Playwright Full scribe Test"
+  },
+  "Page Object Model": {
+    "prefix": "3cpomodel",
+    "body": [
+      "export class ${1:PageName} {",
+      "  readonly page: Page;",
+      "  readonly ${2:elementName}: Locator;",
+      "",
+      "  constructor(page: Page) {",
+      "    this.page = page;",
+      "    this.${2:elementName} = page.locator('${3:selector}');",
+      "  }",
+      "",
+      "  async ${4:methodName}() {",
+      "    $0",
+      "  }",
+      "}"
+    ],
+    "description": "Create a Page Object Model class"
+  },
+  "Expect Assertion": {
+    "prefix": "3cexpect",
+    "body": [
+      "await expect(${1:locator}).${2|toBeVisible,toHaveText,toHaveValue,toBeChecked,toBeDisabled,toBeEnabled|}(${3:''});"
+    ],
+    "description": "Create an expect"
+  },
+  "ExportFunction": {
+    "prefix": "3cexport",
+    "body": [
+      "export async function ${1:input_date}(page: Page, ${3:inputDate}: string) {",
+      "     await page.keyboard.type(${3:inputDate});",
+      "}"
+    ],
+    "description": "Export Playwright function"
+  }
+}

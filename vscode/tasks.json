@@ -1,0 +1,26 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Run Playwright Current File",
+      "type": "shell",
+      "command": "npx",
+      "args": [
+        "playwright",
+        "test",
+        "${file}"
+      ],
+      "problemMatcher": [],
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      }
+    }
+  ]
+}

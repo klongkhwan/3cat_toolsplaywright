@@ -1,8 +1,8 @@
 {
-  "name": "playwright-helper",
+  "name": "playwright-3CAT",
   "displayName": "3CAT Helper",
   "description": "VS Code Extension to run Playwright tests and snippets",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "engines": {
     "vscode": "^1.88.0"
   },

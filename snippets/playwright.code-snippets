@@ -19,21 +19,13 @@
     ],
     "description": "Create a test.step"
   },
-  // "Playwright Test with beforeEach": {
-  //   "prefix": "pwtestbefore",
-  //   "body": [
-  //     "import { test, expect } from '@playwright/test';",
-  //     "",
-  //     "test.beforeEach(async ({ page }) => {",
-  //     "  await page.goto('${1:https://example.com}');",
-  //     "});",
-  //     "",
-  //     "test('${2:test description}', async ({ page }) => {",
-  //     "  $0",
-  //     "});"
-  //   ],
-  //   "description": "Create a Playwright test with beforeEach hook"
-  // },
+  "Playwright API response": {
+    "prefix": "3capiresponse",
+    "body": [
+      "await page.waitForResponse(res => res.url().includes(\"/apipath\") && res.ok());"
+    ],
+    "description": "Create API response"
+  },
   "Playwright Full scribe Test": {
     "prefix": "3cfulltest",
     "body": [

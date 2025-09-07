@@ -1,3 +1,6 @@
 npm run compile
 
 code --extensionDevelopmentPath=$(pwd)
+npm i
+npm run package
+code --install-extension playwrigth-snippets-3c-0.0.1.vsix

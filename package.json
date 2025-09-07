@@ -6,13 +6,17 @@
   "engines": {
     "vscode": "^1.88.0"
   },
-  "categories": [
-    "Other"
-  ],
+  "icon": "icon.png",
+  "categories": ["Other"],
   "main": "./out/extension.js",
+
   "activationEvents": [
-    "*"
+    "onCommand:playwright-helper.runCurrentFile",
+    "onCommand:playwright-helper.runCurrentFileWithOptions",
+    "onCommand:playwright-helper.showReport",
+    "onCommand:playwright-helper.recordAndInsert"
   ],
+
   "scripts": {
     "compile": "tsc -p ./"
   },
@@ -21,50 +25,57 @@
     "@types/vscode": "^1.88.0",
     "typescript": "^5.1.6"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/klongkhwan/tools3cat.git"
+  },
+
   "contributes": {
     "commands": [
-      {
-        "command": "playwright-helper.runCurrentFile",
-        "title": "Run Playwright Test"
-      },
-      {
-        "command": "playwright-helper.runCurrentFileWithOptions",
-        "title": "Run Playwright Test (with options)"
-      },
-      {
-        "command": "playwright-helper.showReport",
-        "title": "Show Playwright Test Report"
-      }
+      { "command": "playwright-helper.runCurrentFile", "title": "Run Playwright Test" },
+      { "command": "playwright-helper.runCurrentFileWithOptions", "title": "Run Playwright Test (with options)" },
+      { "command": "playwright-helper.showReport", "title": "Show Playwright Test Report" },
+
+      { "command": "playwright-helper.recordAndInsert", "title": "Playwright: Record code" }
     ],
+
     "menus": {
       "explorer/context": [
         {
           "command": "playwright-helper.runCurrentFile",
           "when": "resourceFilename =~ /\\.(test|spec)\\.(ts|js)$/",
-          "group": "navigation"
+          "group": "navigation@100"
         },
         {
           "command": "playwright-helper.runCurrentFileWithOptions",
           "when": "resourceFilename =~ /\\.(test|spec)\\.(ts|js)$/",
-          "group": "navigation"
+          "group": "navigation@101"
+        },
+        {
+          "command": "playwright-helper.recordAndInsert",
+          "when": "resourceFilename =~ /\\.(test|spec)\\.(ts|js)$/",
+          "group": "navigation@102"
         }
       ],
       "editor/context": [
         {
           "command": "playwright-helper.runCurrentFile",
-          "when": "resourceLangId == typescript",
-          "group": "navigation"
+          "when": "resourceExtname =~ /\\.(ts|js)$/",
+          "group": "navigation@100"
+        },
+        {
+          "command": "playwright-helper.recordAndInsert",
+          "when": "resourceFilename =~ /\\.(test|spec)\\.(ts|js)$/",
+          "group": "navigation@101"
         }
       ],
       "commandPalette": [
-        {
-          "command": "playwright-helper.runCurrentFile"
-        },
-        {
-          "command": "playwright-helper.showReport"
-        }
+        { "command": "playwright-helper.runCurrentFile" },
+        { "command": "playwright-helper.showReport" },
+        { "command": "playwright-helper.recordAndInsert" }
       ]
     },
+
     "snippets": [
       {
         "language": "typescript",

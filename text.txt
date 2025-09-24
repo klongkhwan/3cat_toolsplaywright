@@ -3,4 +3,9 @@ npm run compile
 code --extensionDevelopmentPath=$(pwd)
 npm i
 npm run package
-code --install-extension playwrigth-snippets-3c-0.0.1.vsix
+
+#build vsix
+npm install -g @vscode/vsce
+
+#ลง
+code --install-extension playwright-3CAT-2.0.0.vsix

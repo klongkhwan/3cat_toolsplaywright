@@ -1,11 +1,12 @@
+
+#compile use after change code  
 npm run compile
 
+#run test debug
 code --extensionDevelopmentPath=$(pwd)
-npm i
-npm run package
 
 #build vsix
-npm install -g @vscode/vsce
+npx -y @vscode/vsce package --no-dependencies 2>&1
 
 #ลง
 code --install-extension playwright-3CAT-2.0.0.vsix

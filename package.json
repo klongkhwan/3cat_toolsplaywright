@@ -2,25 +2,28 @@
   "name": "playwright-3CAT",
   "displayName": "3CAT Helper",
   "description": "VS Code Extension to run Playwright tests and snippets",
-  "version": "2.0.0",
+  "version": "3.0.0",
+  "publisher": "3cat",
   "engines": {
     "vscode": "^1.88.0"
   },
   "icon": "icon.png",
-  "categories": ["Other"],
+  "categories": [
+    "Other"
+  ],
   "main": "./out/extension.js",
-
   "activationEvents": [
     "onCommand:playwright-helper.runCurrentFile",
     "onCommand:playwright-helper.runCurrentFileWithOptions",
     "onCommand:playwright-helper.showReport",
-    "onCommand:playwright-helper.recordAndInsert"
+    "onCommand:playwright-helper.recordAndInsert",
+    "onView:playwright-helper-sidebar"
   ],
-
   "scripts": {
     "compile": "tsc -p ./"
   },
   "devDependencies": {
+    "@playwright/test": "^1.59.1",
     "@types/node": "^20.4.2",
     "@types/vscode": "^1.88.0",
     "typescript": "^5.1.6"
@@ -29,16 +32,43 @@
     "type": "git",
     "url": "https://github.com/klongkhwan/tools3cat.git"
   },
-
   "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "playwright-helper-sidebar",
+          "title": "3CAT Helper",
+          "icon": "icon-sidebar.svg"
+        }
+      ]
+    },
+    "views": {
+      "playwright-helper-sidebar": [
+        {
+          "id": "playwright-helper-sidebar",
+          "name": "3CAT Helper",
+          "type": "webview"
+        }
+      ]
+    },
     "commands": [
-      { "command": "playwright-helper.runCurrentFile", "title": "Run Playwright Test" },
-      { "command": "playwright-helper.runCurrentFileWithOptions", "title": "Run Playwright Test (with options)" },
-      { "command": "playwright-helper.showReport", "title": "Show Playwright Test Report" },
-
-      { "command": "playwright-helper.recordAndInsert", "title": "Playwright: Record code" }
+      {
+        "command": "playwright-helper.runCurrentFile",
+        "title": "Run Playwright Test"
+      },
+      {
+        "command": "playwright-helper.runCurrentFileWithOptions",
+        "title": "Run Playwright Test (with options)"
+      },
+      {
+        "command": "playwright-helper.showReport",
+        "title": "Show Playwright Test Report"
+      },
+      {
+        "command": "playwright-helper.recordAndInsert",
+        "title": "Playwright: Record code"
+      }
     ],
-
     "menus": {
       "explorer/context": [
         {
@@ -70,12 +100,17 @@
         }
       ],
       "commandPalette": [
-        { "command": "playwright-helper.runCurrentFile" },
-        { "command": "playwright-helper.showReport" },
-        { "command": "playwright-helper.recordAndInsert" }
+        {
+          "command": "playwright-helper.runCurrentFile"
+        },
+        {
+          "command": "playwright-helper.showReport"
+        },
+        {
+          "command": "playwright-helper.recordAndInsert"
+        }
       ]
     },
-
     "snippets": [
       {
         "language": "typescript",

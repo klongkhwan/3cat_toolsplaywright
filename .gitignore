@@ -5,6 +5,10 @@ node_modules/
 out/
 dist/
 
+# test 
+tests/
+test-results/
+
 # Logs
 npm-debug.log*
 yarn-debug.log*

@@ -4,6 +4,7 @@ import * as os from 'os';
 import * as fs from 'fs/promises';
 import { existsSync } from 'fs';
 import * as cp from 'child_process';
+import { PlaywrightSidebarProvider } from './sidebarProvider';
 
 export function activate(context: vscode.ExtensionContext) {
   console.log('Playwright Helper is now active!');
@@ -174,10 +175,10 @@ export function activate(context: vscode.ExtensionContext) {
         // อ่านโค้ดแล้วแทรกที่ตำแหน่งเคอร์เซอร์
         let recorded = await fs.readFile(tmpFile, 'utf8');
 
-        // --- กรองส่วนหัวที่ไม่ต้องการออก ---
+        // --- ดึงเฉพาะ body ภายใน test('...', async (...) => { ... }) ---
         // ลบ: import { test, expect } from '@playwright/test';
         recorded = recorded.replace(
-          /^\s*import\s+\{\s*test\s*,\s*expect\s*\}\s+from\s+['"]@playwright\/test['"];?\s*\r?\n?/m,
+          /^\s*import\s+\{[^}]*\}\s+from\s+['"]@playwright\/test['"];?\s*\r?\n?/gm,
           ''
         );
 
@@ -187,11 +188,35 @@ export function activate(context: vscode.ExtensionContext) {
           ''
         );
 
-        // ตัดช่องว่างหัวท้าย (กันบรรทัดว่าง)
-        recorded = recorded.trim();
+        // ดึงเฉพาะ body ภายใน test('...', async (...) => { ... });
+        // จับเฉพาะโค้ดด้านในของ test wrapper
+        const bodyMatch = recorded.match(
+          /test\s*\(\s*['"][^'"]*['"]\s*,\s*async\s*\(\s*\{[^}]*\}\s*\)\s*=>\s*\{([\s\S]*?)\}\s*\)\s*;/
+        );
 
-        // (ออปชัน) ครอบด้วย test.step ถ้าต้องการ
-        // recorded = ["await test.step('Recorded', async ({ page }) => {", recorded, "});"].join('\n');
+        if (bodyMatch && bodyMatch[1]) {
+          // ใช้เฉพาะ body ที่อยู่ภายใน test wrapper
+          recorded = bodyMatch[1];
+          // ลบ indent ส่วนเกินออก (โดยทั่วไป codegen indent 2 spaces)
+          const lines = recorded.split('\n');
+          const nonEmptyLines = lines.filter(l => l.trim().length > 0);
+          if (nonEmptyLines.length > 0) {
+            const minIndent = Math.min(
+              ...nonEmptyLines.map(l => (l.match(/^(\s*)/) || ['', ''])[1].length)
+            );
+            recorded = lines
+              .map(l => l.substring(minIndent))
+              .join('\n');
+          }
+        } else {
+          // Fallback: ลบ test wrapper ด้วย simple replace ถ้า regex ข้างบนไม่ match
+          recorded = recorded
+            .replace(/^\s*test\s*\(\s*['"][^'"]*['"]\s*,\s*async\s*\(\s*\{[^}]*\}\s*\)\s*=>\s*\{\s*\r?\n?/m, '')
+            .replace(/\}\s*\)\s*;\s*$/m, '');
+        }
+
+        // ตัดช่องว่างหัวท้าย
+        recorded = recorded.trim();
 
         await editor.edit((builder) => {
           const pos = editor!.selection.active;
@@ -220,6 +245,20 @@ export function activate(context: vscode.ExtensionContext) {
     }
   );
 
+  // ====== 5) Sidebar View ======
+  const sidebarProvider = new PlaywrightSidebarProvider(context.extensionUri);
+  context.subscriptions.push(
+    vscode.window.registerWebviewViewProvider(
+      PlaywrightSidebarProvider.viewType,
+      sidebarProvider,
+      {
+        webviewOptions: {
+          retainContextWhenHidden: true
+        }
+      }
+    )
+  );
+
   context.subscriptions.push(
     runCurrentFile,
     runCurrentFileWithOptions,
@@ -241,7 +280,7 @@ function runPlaywrightTest(filePath: string, options: string = '') {
   relativePath = relativePath.replace(/\\/g, '/');
 
   const terminal = vscode.window.createTerminal('Playwright Test');
-  const command = `npx playwright test ${relativePath} ${options}`.trim();
+  const command = `npx playwright test ${relativePath} --reporter=line,html ${options}`.trim();
   terminal.sendText(command);
   terminal.show();
 

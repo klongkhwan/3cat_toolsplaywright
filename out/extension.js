@@ -41,6 +41,7 @@ const os = __importStar(require("os"));
 const fs = __importStar(require("fs/promises"));
 const fs_1 = require("fs");
 const cp = __importStar(require("child_process"));
+const sidebarProvider_1 = require("./sidebarProvider");
 function activate(context) {
     console.log('Playwright Helper is now active!');
     // ===== Utils =====
@@ -172,15 +173,35 @@ function activate(context) {
             }
             // อ่านโค้ดแล้วแทรกที่ตำแหน่งเคอร์เซอร์
             let recorded = await fs.readFile(tmpFile, 'utf8');
-            // --- กรองส่วนหัวที่ไม่ต้องการออก ---
+            // --- ดึงเฉพาะ body ภายใน test('...', async (...) => { ... }) ---
             // ลบ: import { test, expect } from '@playwright/test';
-            recorded = recorded.replace(/^\s*import\s+\{\s*test\s*,\s*expect\s*\}\s+from\s+['"]@playwright\/test['"];?\s*\r?\n?/m, '');
+            recorded = recorded.replace(/^\s*import\s+\{[^}]*\}\s+from\s+['"]@playwright\/test['"];?\s*\r?\n?/gm, '');
             // ลบ: test.use(...) (รองรับหลายบรรทัด)
             recorded = recorded.replace(/^\s*test\.use\(\s*[\s\S]*?\);\s*\r?\n?/m, '');
-            // ตัดช่องว่างหัวท้าย (กันบรรทัดว่าง)
+            // ดึงเฉพาะ body ภายใน test('...', async (...) => { ... });
+            // จับเฉพาะโค้ดด้านในของ test wrapper
+            const bodyMatch = recorded.match(/test\s*\(\s*['"][^'"]*['"]\s*,\s*async\s*\(\s*\{[^}]*\}\s*\)\s*=>\s*\{([\s\S]*?)\}\s*\)\s*;/);
+            if (bodyMatch && bodyMatch[1]) {
+                // ใช้เฉพาะ body ที่อยู่ภายใน test wrapper
+                recorded = bodyMatch[1];
+                // ลบ indent ส่วนเกินออก (โดยทั่วไป codegen indent 2 spaces)
+                const lines = recorded.split('\n');
+                const nonEmptyLines = lines.filter(l => l.trim().length > 0);
+                if (nonEmptyLines.length > 0) {
+                    const minIndent = Math.min(...nonEmptyLines.map(l => (l.match(/^(\s*)/) || ['', ''])[1].length));
+                    recorded = lines
+                        .map(l => l.substring(minIndent))
+                        .join('\n');
+                }
+            }
+            else {
+                // Fallback: ลบ test wrapper ด้วย simple replace ถ้า regex ข้างบนไม่ match
+                recorded = recorded
+                    .replace(/^\s*test\s*\(\s*['"][^'"]*['"]\s*,\s*async\s*\(\s*\{[^}]*\}\s*\)\s*=>\s*\{\s*\r?\n?/m, '')
+                    .replace(/\}\s*\)\s*;\s*$/m, '');
+            }
+            // ตัดช่องว่างหัวท้าย
             recorded = recorded.trim();
-            // (ออปชัน) ครอบด้วย test.step ถ้าต้องการ
-            // recorded = ["await test.step('Recorded', async ({ page }) => {", recorded, "});"].join('\n');
             await editor.edit((builder) => {
                 const pos = editor.selection.active;
                 builder.insert(pos, `\n${recorded}\n`);
@@ -204,6 +225,13 @@ function activate(context) {
             vscode.window.showErrorMessage(`Error: ${err?.message ?? String(err)}`);
         }
     });
+    // ====== 5) Sidebar View ======
+    const sidebarProvider = new sidebarProvider_1.PlaywrightSidebarProvider(context.extensionUri);
+    context.subscriptions.push(vscode.window.registerWebviewViewProvider(sidebarProvider_1.PlaywrightSidebarProvider.viewType, sidebarProvider, {
+        webviewOptions: {
+            retainContextWhenHidden: true
+        }
+    }));
     context.subscriptions.push(runCurrentFile, runCurrentFileWithOptions, showReport, recordAndInsert);
 }
 // ===== Helpers =====
@@ -217,7 +245,7 @@ function runPlaywrightTest(filePath, options = '') {
     let relativePath = path.relative(workspaceFolder.uri.fsPath, filePath);
     relativePath = relativePath.replace(/\\/g, '/');
     const terminal = vscode.window.createTerminal('Playwright Test');
-    const command = `npx playwright test ${relativePath} ${options}`.trim();
+    const command = `npx playwright test ${relativePath} --reporter=line,html ${options}`.trim();
     terminal.sendText(command);
     terminal.show();
     vscode.window.showInformationMessage(`Running: ${command}`);
